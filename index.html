@@ -23,10 +23,7 @@
 				<p style="padding-left: 10px;">Menü</p>
 			</h1>
 		</md-toolbar>
-		<md-content class="md-padding" ng-controller="LeftCtrl">
-			<md-button ng-click="close()" class="md-primary" hide-gt-md>
-				Close Sidenav Left
-			</md-button>
+		<md-content class="md-padding">
 			<p hide-md show-gt-md>
 				This sidenav is locked open on your device. To go back to the default behavior,
 				narrow your display.
@@ -76,8 +73,10 @@
 				<br/><br/>
 				Zweck:<br/>
 				<textarea ng-model="txtpurpose" style="height: 80px; width: 450px;"></textarea>
-				<br/><br/><br/>
-				<md-button ng-click="saveTravel()" class="md-primary customBtn">Speichern</md-button>
+				<br/><br/>
+				<table id="tblDays" style="border-collapse: collapse;"></table>
+				<br/>
+				<md-button ng-click="saveTravel()" class="md-primary md-raised customBtn">Speichern</md-button>
 			</div>
 			<div class="tabcontent" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1" md-swipe-left="next()" md-swipe-right="previous()" >
 				<p>
@@ -91,11 +90,6 @@
 				<p>
 					The left sidenav will 'lock open' on a medium (>=960px wide) device.
 				</p>
-				<div>
-					<md-button ng-click="toggleLeft()" class="md-primary" hide-gt-md>
-						Toggle left
-					</md-button>
-				</div>
 			</div>
 		</md-content>
 	</div>
