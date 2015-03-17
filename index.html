@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html ng-app="trackTravel">
+<head>
+	<meta charset="UTF-8">
+	<title>AngularProject TTE</title>
+	
+	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.min.js"></script>
+	<script src="bower_components/angular-aria/angular-aria.min.js"></script>
+	<script src="bower_components/angular-material/angular-material.min.js"></script>
+	<script src="bower_components/angular-material-icons/angular-material-icons.min.js"></script>
+	<script type="text/javascript" src="tte.js"></script>
+	<script type="text/javascript" src="dpd.js"></script>
+	
+	<link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+	<link rel="stylesheet" href="tte.css">
+</head>
+<body layout="row" ng-controller="TteCtrl">
+	<md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
+		<md-toolbar class="md-theme-indigo">
+			<h1 class="md-toolbar-tools">
+				<ng-md-icon icon="menu" style="fill: white"></ng-md-icon>
+				<p style="padding-left: 10px;">Menü</p>
+			</h1>
+		</md-toolbar>
+		<md-content class="md-padding" ng-controller="LeftCtrl">
+			<md-button ng-click="close()" class="md-primary" hide-gt-md>
+				Close Sidenav Left
+			</md-button>
+			<p hide-md show-gt-md>
+				This sidenav is locked open on your device. To go back to the default behavior,
+				narrow your display.
+			</p>
+		</md-content>
+	</md-sidenav>
+	
+	<div layout="column" style="width: 100%">
+		<md-toolbar>
+			<div layout="row" ng-controller="UserCtrl">
+				<h1 class="md-toolbar-tools">
+					<button style="background: none; border: none; padding-right: 15px;" ng-click="toggleLeft()" hide-gt-md aria-label="Toggle Menu">
+						<ng-md-icon icon="menu" style="fill: white" aria-hidden="true"></ng-md-icon>
+					</button>
+					Modul > Reiseerfassung
+					
+				</h1>
+				<md-select class="toolbarTools" ng-model="user" ng-change="changedValue(user)" md-on-open="loadUsers()" style="min-width: 200px;">
+						<md-select-label>{{ user ? user.name : 'User' }}</md-select-label>
+						<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
+				</md-select>
+			</div>
+		</md-toolbar>
+		<md-tabs class="tabsStaticTabs" md-selected="data.selectedIndex">
+			<md-tab id="tab1" aria-controls="tab1-content">
+				Neue Reise
+			</md-tab>
+			<md-tab id="tab2" aria-controls="tab2-content">
+				Alle Reisen
+			</md-tab>
+		</md-tabs>
+		
+		<ng-switch on="data.selectedIndex" class="tabpanel-container">
+			<div ng-controller="TravelCtrl" class="tabcontent" "id="tab1-content" aria-labelledby="tab1" ng-switch-when="0" md-swipe-left="next()" md-swipe-right="previous()" >
+				<b>Start:</b>
+				<ng-md-icon icon="event"></ng-md-icon>
+				<input type="date" ng-model="startDate"></input>
+				<ng-md-icon icon="schedule"></ng-md-icon>
+				<input type="time" ng-model="startTime"></input>
+				<b style="padding-left: 15px;">Ende:</b>
+				<ng-md-icon icon="event"></ng-md-icon>
+				<input type="date" ng-model="endDate"></input>
+				<ng-md-icon icon="schedule"></ng-md-icon>
+				<input type="time" ng-model="endTime"></input>
+				<br/><br/>
+				Ort: <input type="text" ng-model="location"></input>
+				<br/><br/>
+				Zweck:<br/>
+				<textarea ng-model="txtpurpose" style="height: 80px; width: 450px;"></textarea>
+				<br/><br/><br/>
+				<md-button ng-click="saveTravel()" class="md-primary customBtn">Speichern</md-button>
+			</div>
+			<div class="tabcontent" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1" md-swipe-left="next()" md-swipe-right="previous()" >
+				<p>
+					Hier steht der Content vom zweiten Tab!
+				</p>
+			</div>
+		</ng-switch>
+		
+		<md-content flex class="md-padding contentbottom">
+			<div layout="column" layout-fill layout-align="top center">
+				<p>
+					The left sidenav will 'lock open' on a medium (>=960px wide) device.
+				</p>
+				<div>
+					<md-button ng-click="toggleLeft()" class="md-primary" hide-gt-md>
+						Toggle left
+					</md-button>
+				</div>
+			</div>
+		</md-content>
+	</div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+.tabsStaticTabs .md-header {
+    background-color: #1976D2 !important; }
+.tabsStaticTabs md-tab {
+    color: #90caf9 !important; }
+.tabsStaticTabs md-tab.active, .tabsStaticTabs md-tab:focus {
+    color: white !important; }
+.tabsStaticTabs md-tab[disabled] {
+    opacity: 0.5; }
+.tabsStaticTabs .md-header .md-ripple {
+    border-color: #FFFF8D !important; }
+.tabsStaticTabs md-tabs-ink-bar {
+    background-color: #FFFF8D !important; }
+.tabsStaticTabs md-tabs .md-paginator {
+    color: white; }
+	
+.tabcontent {
+	padding: 20px;
+}
+
+.toolbarTools {
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	width: 10%;
+	height: 64px;
+	max-height: 64px;
+	font-size: inherit;
+	font-weight: normal;
+	padding: 0 16px;
+	margin: 0;
+}
+
+.customBtn {
+	font-size: 20px;
+}
+
+.contentbottom {
+	position: absolute;
+	bottom: 0px;
+}
