@@ -1,6 +1,8 @@
-var tte = angular.module('trackTravel', ['ngMaterial', 'ngMdIcons']);
+var tte = angular.module('trackTravel', ['ngMaterial', 'ngMdIcons', 'ngRoute', 'mgcrea.ngStrap']);
+
 //Globale Variablen
 var name = "";
+var nameID = "";
 var dateToday = new Date();
 var dateToday_ms = dateToday.getTime();
 var dateTodayYear = dateToday.getFullYear();
@@ -8,6 +10,12 @@ var dateTodayMonth = dateToday.getMonth();
 var dateTodayDate = dateToday.getDate();
 var dateTodayHours = dateToday.getHours();
 var dateTodayMinutes = dateToday.getMinutes();
+var dietGesBetrag = 0;
+var oldDietGesBetrag = 0;
+var newDietGesBetrag = 0;
+var currTravelID = "";
+//AllTravel Globale Variablen
+var alleReisen = [];
 
 tte.controller('TteCtrl', function($scope) {
 	$scope.data = {
@@ -39,6 +47,30 @@ tte.controller('UserCtrl', function($timeout, $scope, $http) {
 	
 	$scope.changedValue = function(user) {
 		name = user.name;
+		nameID = user.id;
+		oldDietGesBetrag = user.sumDiets;
+		console.log(nameID);
+		console.log(oldDietGesBetrag);
+		
+		/*dpd.reise.get(function (result, err) {
+			if(err) return console.log(err);
+			
+			console.log(result);
+			var start = 0;
+			var ende = 0;
+			dateToday_ms
+			for (i=0; i < result.length; i++) {
+				if (result[i].name == name) {
+					console.log("ID: "+result[i].id);
+					start = result[i].start;
+					ende = result[i].end;
+					if (start < dateToday_ms && dateToday_ms < ende) {
+						var newTestDate = new Date(start);
+						console.log(newTestDate);
+					};
+				};
+			};
+		});*/
 	};
 });
 
@@ -81,7 +113,6 @@ tte.controller('TravelCtrl', function($scope, $compile) {
 			'<td class="daypadding">Diäten</td><td class="daypadding">Spesen</td></tr>';
 		
 		var rowID = 1;
-		var dietGesBetrag = 0;
 
 		while (stDate_notime_ms < endDate_ms) {
 			var dateVar = new Date(stDate_notime_ms);
@@ -121,8 +152,8 @@ tte.controller('TravelCtrl', function($scope, $compile) {
 				'<td class="day"><input type="checkbox" id="cbM'+rowID+'" ng-click="calcM('+rowID+')"></input></td>'+
 				'<td class="day"><input type="checkbox" id="cbA'+rowID+'" ng-click="calcA('+rowID+')"></input></td>'+
 				'<td class="day"><input type="checkbox" id="cbN'+rowID+'" ng-click="calcN('+rowID+')"></input></td>'+
-				'<td><md-button id="btnBeleg'+rowID+'" ng-click="test('+rowID+')" class="md-primary md-raised">Beleg</md-button></td>'+
-				'<td class="daypadding">'+dietBetrag+'</td>'+
+				'<td><md-button id="btnBeleg'+rowID+'" ng-click="addBeleg('+rowID+')" class="md-primary md-raised">Beleg</md-button></td>'+
+				'<td id="tdDiet'+rowID+'" class="daypadding">'+dietBetrag+'</td>'+
 				'<td class="daypadding">EUR</td></tr>';
 			
 			/*
@@ -134,14 +165,14 @@ tte.controller('TravelCtrl', function($scope, $compile) {
 				'<md-button ng-click="test()" class="md-primary">Beleg</md-button>'+
 				'</td><td class="daypadding">'+dietBetrag+'</td><td class="daypadding">EUR</td></tr>';
 			*/
-			
+			newDietGesBetrag += dietBetrag;
 			stDate_notime_ms += 86400000;
 			rowID++;
 		};
 		
 		//Schlusszeile von den Tagen
 		document.getElementById("tblDays").innerHTML += '<tr style="border-top: 1px solid black;"><td colspan="6" style="text-align: right; padding-top: 10px;">SUMME</td>'+
-			'<td class="daypadding" style="padding-top: 10px;">'+dietGesBetrag+'</td>'+
+			'<td id="tdGesDiet" class="daypadding" style="padding-top: 10px;">'+dietGesBetrag+'</td>'+
 			'<td class="daypadding" style="padding-top: 10px;">EUR</td></tr>';
 		$compile(document.getElementById('tblDays'))($scope);
 		
@@ -149,40 +180,179 @@ tte.controller('TravelCtrl', function($scope, $compile) {
 		dpd.reise.post({"start":stDate_ms,"end":endDate_ms,"location":location,"purpose":purpose,"name":name,"diets":dietGesBetrag,"expenses":0}, function(result, err) {
 			if(err) return console.log(err);
 			console.log(result, result.id);
+			currTravelID = result.id;
+		});
+		document.getElementById("btnUpdate").style.display = "block";
+		document.getElementById("btnSave").style.display = "none";
+	};
+	
+	$scope.updateTravel = function($scope) {
+		var sumDietBetrag
+		sumDietBetrag = oldDietGesBetrag + newDietGesBetrag;
+		sumDietBetrag = Math.round((sumDietBetrag+0.00001)*100)/100;
+		dpd.users.put(nameID, {"sumDiets": sumDietBetrag}, function(result, err) {
+			if(err) return console.log(err);
+			console.log(result, result.id);
 		});
 	};
 	
-	$scope.test = function(btnID) {
-		//document.getElementById("btnBeleg"+btnID).innerHTML = "Works!";
+	$scope.addBeleg = function(btnID) {
 		console.log("Button with the ID: 'btnBeleg"+btnID+"' was clicked!");
 	};
 	
 	$scope.calcF = function(cbF_id) {
-		if (document.getElementById("cbF"+cbF_id).checked)
+		if (document.getElementById("cbF"+cbF_id).checked) {
 			console.log("Checkbox with the ID: 'cbF"+cbF_id+"' was checked!");
-		else
+		} else {
 			console.log("Checkbox with the ID: 'cbF"+cbF_id+"' was unchecked!");
+		};
 	};
 	
 	$scope.calcM = function(cbM_id) {
-		if (document.getElementById("cbM"+cbM_id).checked)
+		var tdGesDiet = 0;
+		if (document.getElementById("cbM"+cbM_id).checked) {
 			console.log("Checkbox with the ID: 'cbM"+cbM_id+"' was checked!");
-		else
+			document.getElementById("tdDiet"+cbM_id).innerHTML -= 13.2;
+			tdGesDiet = document.getElementById("tdGesDiet").innerHTML;
+			tdGesDiet -= 13.2;
+			tdGesDiet = Math.round((tdGesDiet+0.00001)*100)/100;
+			document.getElementById("tdGesDiet").innerHTML = tdGesDiet;
+			newDietGesBetrag -= 13.2;
+			newDietGesBetrag = Math.round((newDietGesBetrag+0.00001)*100)/100;
+		} else {
 			console.log("Checkbox with the ID: 'cbM"+cbM_id+"' was unchecked!");
+			document.getElementById("tdDiet"+cbM_id).innerHTML -= -13.2;
+			tdGesDiet = document.getElementById("tdGesDiet").innerHTML;
+			tdGesDiet -= -13.2;
+			tdGesDiet = Math.round((tdGesDiet+0.00001)*100)/100;
+			document.getElementById("tdGesDiet").innerHTML = tdGesDiet;
+			newDietGesBetrag += 13.2;
+			newDietGesBetrag = Math.round((newDietGesBetrag+0.00001)*100)/100;
+		};
 	};
 	
 	$scope.calcA = function(cbA_id) {
-		if (document.getElementById("cbA"+cbA_id).checked)
+		var tdGesDiet = 0;
+		if (document.getElementById("cbA"+cbA_id).checked) {
 			console.log("Checkbox with the ID: 'cbA"+cbA_id+"' was checked!");
-		else
+			document.getElementById("tdDiet"+cbA_id).innerHTML -= 13.2;
+			tdGesDiet = document.getElementById("tdGesDiet").innerHTML;
+			tdGesDiet -= 13.2;
+			tdGesDiet = Math.round((tdGesDiet+0.00001)*100)/100;
+			document.getElementById("tdGesDiet").innerHTML = tdGesDiet;
+			newDietGesBetrag -= 13.2;
+			newDietGesBetrag = Math.round((newDietGesBetrag+0.00001)*100)/100;
+		} else {
 			console.log("Checkbox with the ID: 'cbA"+cbA_id+"' was unchecked!");
+			document.getElementById("tdDiet"+cbA_id).innerHTML -= -13.2;
+			tdGesDiet = document.getElementById("tdGesDiet").innerHTML;
+			tdGesDiet -= -13.2;
+			tdGesDiet = Math.round((tdGesDiet+0.00001)*100)/100;
+			document.getElementById("tdGesDiet").innerHTML = tdGesDiet;
+			newDietGesBetrag += 13.2;
+			newDietGesBetrag = Math.round((newDietGesBetrag+0.00001)*100)/100;
+		}
 	};
 	
 	$scope.calcN = function(cbN_id) {
-		if (document.getElementById("cbN"+cbN_id).checked)
+		if (document.getElementById("cbN"+cbN_id).checked) {
 			console.log("Checkbox with the ID: 'cbN"+cbN_id+"' was checked!");
-		else
+		} else {
 			console.log("Checkbox with the ID: 'cbN"+cbN_id+"' was unchecked!");
+		}
+	};
+});
+
+tte.controller('AllTravelCtrl', function($scope, $compile, $http) {
+	$scope.loadUserDB = function() {
+		console.log("Tab 'Alle Reisen' was clicked!");
+		$http.get('/users')
+		.success(function(users) {
+			$scope.loaded = true;
+			console.log(users);
+			for (i=0; i < users.length; i++) {
+				document.getElementById("allTravelCont").innerHTML += '<div id="divUser'+i+'" class="heading" ng-click="loadUserTravel('+i+')">'+
+					'<ng-md-icon icon="expand_more" style="fill: white; padding-right: 10px;" size="16"></ng-md-icon>'+
+					'<span id="userName'+i+'">'+users[i].name+'</span><span style="float: right">Diäten: '+users[i].sumDiets+'€ ; Spesen: '+users[i].sumExpenses+'€</span></div>'+
+					'<div id="userTravel'+i+'"></div>';
+			};
+			$compile(document.getElementById('allTravelCont'))($scope);
+		})
+		.error(function(err) {
+			alert(err);
+		});
+	};
+	
+	$scope.loadUserTravel = function(cstmID) {
+		console.log("User Nr.:"+cstmID+" was clicked!");
+		var userName = document.getElementById("userName"+cstmID).innerHTML;
+		
+		if (document.getElementById("userTravel"+cstmID).innerHTML == "") {
+			//Derzeit, wegen eines Fehlers, auskommentiert
+			//if (alleReisen == "") {
+				$http.get('/reise')
+				.success(function(reise) {
+					$scope.loaded = true;
+					alleReisen = reise;
+					console.log(alleReisen);
+					for (i=0; i < alleReisen.length; i++) {
+						if (alleReisen[i].name == userName) {
+							var startDateDisplay = new Date(alleReisen[i].start);
+							var endDateDisplay = new Date(alleReisen[i].end);
+							document.getElementById("userTravel"+cstmID).innerHTML += '<div layout="row">'+
+								'<button style="background: none; border: none;" ng-click="editTravel('+i+')"><ng-md-icon icon="edit" style="fill: black;" size="24"></ng-md-icon></button>'+
+								'<button style="background: none; border: none;" ng-click="deleteTravel('+i+')"><ng-md-icon icon="delete" style="fill: black;" size="24"></ng-md-icon></button>'+
+								'<div class="innerHeading">'+startDateDisplay.getDate()+'.'+startDateDisplay.getMonth()+'.'+startDateDisplay.getFullYear()+
+								' bis '+endDateDisplay.getDate()+'.'+endDateDisplay.getMonth()+'.'+endDateDisplay.getFullYear()+
+								' - Ort: '+alleReisen[i].location+' - Zweck: '+alleReisen[i].purpose+
+								'<span style="float: right">Diäten: '+alleReisen[i].diets+'€ ; Spesen: '+alleReisen[i].expenses+'</div></div>';
+						};
+					};
+					$compile(document.getElementById('userTravel'+cstmID))($scope);
+				})
+				.error(function(err) {
+					alert(err);
+				});
+			/*} else {
+				for (i=0; i < alleReisen.length; i++) {
+					if (alleReisen[i].name == userName) {
+						document.getElementById("userTravel"+cstmID).innerHTML += '<div layout="row">'+
+							'<button style="background: none; border: none;" ng-click="editTravel('+i+')"><ng-md-icon icon="edit" style="fill: black;" size="24"></ng-md-icon></button>'+
+							'<button style="background: none; border: none;" ng-click="deleteTravel('+i+')"><ng-md-icon icon="delete" style="fill: black;" size="24"></ng-md-icon></button>'+
+							'<div class="innerHeading">Ort: '+alleReisen[i].location+'; Zweck: '+alleReisen[i].purpose+'</div></div>';
+					};
+				};
+				$compile(document.getElementById('userTravel'+cstmID))($scope);
+			};*/
+		} else {
+			if (document.getElementById("userTravel"+cstmID).style.display == "none") {
+				document.getElementById("userTravel"+cstmID).style.display = "block";
+			} else {
+				document.getElementById("userTravel"+cstmID).style.display = "none";
+			};
+		};
+	};
+	
+	$scope.editTravel = function(editArrayID) {
+		var dbID = alleReisen[editArrayID].id;
+		console.log(dbID);
+		
+		/*dpd.reise.put(dbID, {"purpose":"ThisWasEdited"}, function(result, err) {
+			if(err) return console.log(err);
+			console.log(result, result.id);
+		});*/
+	};
+	
+	$scope.deleteTravel = function(deleteArrayID) {
+		var dbID = alleReisen[deleteArrayID].id;
+		console.log(dbID);
+		
+		if (confirm('Diese Reise löschen?\n\nOrt: '+alleReisen[deleteArrayID].location+'\nZweck: '+alleReisen[deleteArrayID].purpose)) {
+			dpd.reise.del(dbID, function (err) {
+				if(err) console.log(err);
+			});
+			location.reload();
+		};
 	};
 });
 
